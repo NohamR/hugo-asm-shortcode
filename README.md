@@ -72,7 +72,7 @@ syscall
 
 ## Demo
 
-See the `demo/` folder for a complete Hugo site example.
+See a live demo at [noh.am/en/posts/asm/](https://noh.am/en/posts/asm/)
 
 ## License
 
