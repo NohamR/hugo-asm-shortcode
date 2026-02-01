@@ -12,6 +12,14 @@ A Hugo shortcode for displaying assembly code blocks with syntax highlighting, h
 - **Capitalization option** for hex bytes and addresses
 - **Dark/light mode** compatible
 
+## Module Structure
+
+This project is structured as a Hugo module with the following components:
+- `layouts/shortcodes/asm.html` - The shortcode template
+- `assets/css/extended/asm.css` - Styling for assembly code blocks
+- `hugo.toml` - Module mount configuration
+- `go.mod` - Go module definition
+
 ## Installation
 
 ### As a Hugo Module
@@ -26,7 +34,7 @@ Add to your `hugo.toml`:
 
 ### Manual Installation
 
-Copy the contents of `module/` to your Hugo site:
+Copy the following files to your Hugo site:
 - `layouts/shortcodes/asm.html` → your site's `layouts/shortcodes/`
 - `assets/css/extended/asm.css` → your site's `assets/css/extended/`
 
