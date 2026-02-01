@@ -1,0 +1,90 @@
+{{- /* Assembly code block shortcode - supports multiple display modes */ -}}
+{{- /* Parameters:
+  - mode: "raw" (syntax highlighted), "hex" (hex + asm), "full" (addr + hex + asm)
+  - arch: "x86" or "arm" (default: "x86")
+  - capitalize: "true" to uppercase hex bytes and addresses (default: "false")
+*/ -}}
+
+{{- $mode := .Get "mode" | default "raw" -}}
+{{- $arch := .Get "arch" | default "x86" -}}
+{{- $capitalize := .Get "capitalize" | default "false" -}}
+{{- $content := .Inner | strings.TrimSpace -}}
+
+<div class="asm-block asm-{{ $mode }}">
+{{- if eq $mode "raw" -}}
+  {{- /* Raw assembly with syntax highlighting only */ -}}
+  <div class="asm-raw">
+    {{- if eq $arch "x86" -}}
+      {{- highlight $content "nasm" "" -}}
+    {{- else if eq $arch "arm" -}}
+      {{- highlight $content "armasm" "" -}}
+    {{- else -}}
+      {{- highlight $content "asm" "" -}}
+    {{- end -}}
+  </div>
+
+{{- else if eq $mode "hex" -}}
+  {{- /* Hex bytes + assembly on same line (format: HEX | INSTRUCTION) */ -}}
+  <div class="highlight">
+    <div class="asm-hex">
+      <pre tabindex="0" class="chroma"><code>{{- range split $content "\n" -}}
+{{- if . -}}
+<span class="asm-line">
+  {{- $parts := split . "|" -}}
+  {{- if eq (len $parts) 2 -}}
+    {{- /* Extract and optionally capitalize hex bytes */ -}}
+    {{- $hexBytes := index $parts 0 | strings.TrimSpace -}}
+    {{- if eq $capitalize "true" -}}
+      {{- $hexBytes = upper $hexBytes -}}
+    {{- end -}}
+    {{- /* Extract instruction and apply syntax highlighting */ -}}
+    {{- $instruction := index $parts 1 | strings.TrimSpace -}}
+    {{- $lang := cond (eq $arch "arm") "armasm" "nasm" -}}
+    {{- $highlighted := highlight $instruction $lang "" -}}
+    {{- /* Strip wrapper divs from highlighted output */ -}}
+<span class="hex-bytes">{{ $hexBytes }}</span>{{ $highlighted | replaceRE "<div class=\"highlight\"><pre[^>]*><code[^>]*>" "" | replaceRE "</code></pre></div>" "" | safeHTML }}
+  {{- else -}}
+{{ . }}
+  {{- end -}}
+</span>
+{{- end -}}
+{{- end -}}</code></pre>
+      <button class="copy-code">copy</button>
+    </div>
+  </div>
+
+{{- else if eq $mode "full" -}}
+  {{- /* Address + hex bytes + assembly (format: ADDRESS | HEX | INSTRUCTION) */ -}}
+  <div class="highlight">
+    <div class="asm-full">
+      <pre tabindex="0" class="chroma"><code>{{- range split $content "\n" -}}
+{{- if . -}}
+<span class="asm-line">
+  {{- $parts := split . "|" -}}
+  {{- if eq (len $parts) 3 -}}
+    {{- /* Extract address and hex bytes */ -}}
+    {{- $address := index $parts 0 | strings.TrimSpace -}}
+    {{- $hexBytes := index $parts 1 | strings.TrimSpace -}}
+    {{- /* Optionally capitalize address and hex bytes */ -}}
+    {{- if eq $capitalize "true" -}}
+      {{- $address = upper $address -}}
+      {{- $hexBytes = upper $hexBytes -}}
+    {{- end -}}
+    {{- /* Extract instruction and apply syntax highlighting */ -}}
+    {{- $instruction := index $parts 2 | strings.TrimSpace -}}
+    {{- $lang := cond (eq $arch "arm") "armasm" "nasm" -}}
+    {{- $highlighted := highlight $instruction $lang "" -}}
+    {{- /* Strip wrapper divs from highlighted output */ -}}
+<span class="address">{{ $address }}</span><span class="hex-bytes">{{ $hexBytes }}</span>{{ $highlighted | replaceRE "<div class=\"highlight\"><pre[^>]*><code[^>]*>" "" | replaceRE "</code></pre></div>" "" | safeHTML }}
+  {{- else -}}
+{{ . }}
+  {{- end -}}
+</span>
+{{- end -}}
+{{- end -}}</code></pre>
+      <button class="copy-code">copy</button>
+    </div>
+  </div>
+
+{{- end -}}
+</div>
